@@ -87,7 +87,7 @@ function EventPage(props) {
                                                 <h5>Admin</h5>
                                                 <p>As the event creator, you can edit the event details and image.</p>
                                                 <p><Link to={{ pathname: `/events/${event._id}/edit` }}>Edit Event Details</Link></p>
-                                                <p><Link to={{ pathname: `/events/${event._id}/view` }}>View Attendees</Link></p>
+                                                {/* <p><Link to={{ pathname: `/events/${event._id}/view` }}>View Attendees</Link></p> */}
                                                 <ImageUpload event={event} setEvent={setEvent} />
                                             </>
                                         ) : (

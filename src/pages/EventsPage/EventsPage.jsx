@@ -37,7 +37,7 @@ function EventsPage(props) {
                 {isLoaded ? (
                     <>
                         <h1 className="event-name">
-                            <span>EVNTZ</span>
+                            <span>TembeaKenya</span>
                         </h1>
 
                         { props.user && <p><Link to='events/new'>New Event</Link></p> }

@@ -60,7 +60,7 @@ function EventPage(props) {
 
                             <div className="col-lg-8">
                                 {event.image && (
-                                    <img src={event.image} alt={event.name} className="img-fluid w-100 mb-4" />
+                                    <img src={event.image} alt={event.name} className="img-fluid w-75 mb-4" />
                                 )}
                                 <p>{event.description}</p>
                             </div>
@@ -87,6 +87,7 @@ function EventPage(props) {
                                                 <h5>Admin</h5>
                                                 <p>As the event creator, you can edit the event details and image.</p>
                                                 <p><Link to={{ pathname: `/events/${event._id}/edit` }}>Edit Event Details</Link></p>
+                                                <p><Link to={{ pathname: `/events/${event._id}/view` }}>View Attendees</Link></p>
                                                 <ImageUpload event={event} setEvent={setEvent} />
                                             </>
                                         ) : (

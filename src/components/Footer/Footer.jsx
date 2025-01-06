@@ -6,7 +6,7 @@ const Footer = (props) => {
         <footer>
             <div className="bg-light">
                 <div className="container-fluid py-3">
-                    <a href="http://www.j0w0.com" target="_blank" rel="noopener noreferrer">j0w0</a>
+                    <a href="#" rel="noopener noreferrer">Created by Nick Njagi</a>
                 </div>
             </div>
         </footer>

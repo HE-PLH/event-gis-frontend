@@ -11,6 +11,7 @@ import MyEventsPage from '../MyEventsPage/MyEventsPage';
 import SignupPage from '../SignupPage/SignupPage';
 import LoginPage from '../LoginPage/LoginPage';
 import userService from '../../utils/userService';
+import EventAttendees from '../EventAttendees/attendees';
 
 class App extends Component {
     constructor() {
@@ -80,6 +81,15 @@ class App extends Component {
                         <Route exact path='/events/:id/edit' render={props =>
                             this.state.user ?
                                 <EventEditPage
+                                    {...props}
+                                    user={this.state.user}
+                                /> :
+                                <Redirect to='/login' />
+                        }/>
+                        
+                        <Route exact path='/events/:id/view' render={props =>
+                            this.state.user ?
+                                <EventAttendees
                                     {...props}
                                     user={this.state.user}
                                 /> :

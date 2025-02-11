@@ -12,6 +12,7 @@ import SignupPage from '../SignupPage/SignupPage';
 import LoginPage from '../LoginPage/LoginPage';
 import userService from '../../utils/userService';
 import EventAttendees from '../EventAttendees/attendees';
+import EventsNearbyPage from "../EventsNearbyPage/EventsNearbyPage";
 
 class App extends Component {
     constructor() {
@@ -55,7 +56,13 @@ class App extends Component {
                             <Redirect to='/events' />
                         }/>
 
-                        <Route exact path='/events' render={props => 
+                        <Route exact path='/eventsnearby' render={props =>
+                            <EventsNearbyPage
+                                {...props}
+                                user={this.state.user}
+                            />
+                        }/>
+                        <Route exact path='/events' render={props =>
                             <EventsPage
                                 {...props}
                                 user={this.state.user}

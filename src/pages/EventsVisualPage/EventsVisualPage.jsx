@@ -12,7 +12,7 @@ const defaultCenter = {
     lng: 36.817223
 };
 
-function EventsMapPage() {
+function EventsVisualPage() {
     const [events, setEvents] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -28,16 +28,15 @@ function EventsMapPage() {
     }, []);
 
     return (
-        <div className="EventsMapPage">
+        <div className="EventsVisualPage">
             <h1>Event Locations</h1>
             {isLoaded ? (
-                <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+
                     <GoogleMap mapContainerStyle={mapContainerStyle} center={defaultCenter} zoom={10}>
                         {events.map((event, idx) => (
                             <Marker key={idx} position={{ lat: event.lat, lng: event.lng }} title={event.name} />
                         ))}
                     </GoogleMap>
-                </LoadScript>
             ) : (
                 <p>Loading map...</p>
             )}

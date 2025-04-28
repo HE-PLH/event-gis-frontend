@@ -53,7 +53,7 @@ function EventsNearbyPage(props) {
     useEffect(() => {
         if (userLocation && events.length > 0) {
             const filteredEvents = events.filter((event) =>
-                getDistance(userLocation.lat, userLocation.lng, event.lat, event.lng) <= 50
+                getDistance(userLocation.lat, userLocation.lng, event.lat, event.lng) <= 5000
             );
             setNearbyEvents(filteredEvents);
         }

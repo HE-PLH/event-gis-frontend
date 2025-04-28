@@ -1,60 +1,119 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useEffect, useState, useRef } from 'react';
 import * as eventAPI from '../../services/events-api';
-import L from 'leaflet';
-
-// Optional: fix missing marker icon issues in some bundlers
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
-});
 
 const mapContainerStyle = {
-    width: '100%',
-    height: '500px'
+  width: '100%',
+  height: '500px'
 };
 
-const defaultCenter = [-1.286389, 36.817223];
+const defaultCenter = { lat: -1.286389, lng: 36.817223 }; // Nairobi
 
 function EventsMarkerPage() {
-    const [markers, setMarkers] = useState([]);
+  const [markers, setMarkers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const mapRef = useRef(null);
+  const googleMapRef = useRef(null);
+  const markersRef = useRef([]);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const results = await eventAPI.getAll();
-                if (!results.err) {
-                    setMarkers(results); // Assuming each result has lat and lng
-                }
-            } catch (error) {
-                console.error("Error fetching events:", error);
-            }
+  // Initialize the map
+  useEffect(() => {
+    const loadGoogleMaps = () => {
+      if (!window.google) {
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places`;
+        script.onload = initializeMap;
+        document.head.appendChild(script);
+      } else {
+        initializeMap();
+      }
+    };
+
+    const initializeMap = () => {
+      const map = new window.google.maps.Map(mapRef.current, {
+        center: defaultCenter,
+        zoom: 2,
+      });
+      googleMapRef.current = map;
+    };
+
+    loadGoogleMaps();
+
+    return () => {
+      // Cleanup markers when component unmounts
+      markersRef.current.forEach(marker => marker.setMap(null));
+    };
+  }, []);
+
+  // Fetch events and add markers
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const results = await eventAPI.getAll();
+        if (!results.err) {
+          setMarkers(results);
         }
-        fetchData();
-    }, []);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
-    return (
-        <div className="EventsMarkerPage">
-            <h1>Event Markers</h1>
-            <MapContainer center={defaultCenter} zoom={10} style={mapContainerStyle}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                {markers.map((event, index) => (
-                    <Marker key={index} position={[event.lat, event.lng]}>
-                        <Popup>
-                            {event.title || 'Event'} <br />
-                            {event.description || ''}
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
-        </div>
-    );
+  // Update markers when data changes
+  useEffect(() => {
+    if (!googleMapRef.current || markers.length === 0) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.setMap(null));
+    markersRef.current = [];
+
+    // Create new markers
+    const bounds = new window.google.maps.LatLngBounds();
+    markers.forEach(event => {
+      if (event.lat && event.lng) {
+        const marker = new window.google.maps.Marker({
+          position: { lat: event.lat, lng: event.lng },
+          map: googleMapRef.current,
+          title: event.name || 'Event'
+        });
+
+        // Add info window
+        const infoWindow = new window.google.maps.InfoWindow({
+          content: `
+            <strong>${event.name || 'Event'}</strong><br />
+            ${event.description || ''}
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(googleMapRef.current, marker);
+        });
+
+        markersRef.current.push(marker);
+        bounds.extend(marker.getPosition());
+      }
+    });
+
+    // Fit bounds if we have markers
+    if (markersRef.current.length > 0) {
+      googleMapRef.current.fitBounds(bounds, { padding: 50 });
+    }
+  }, [markers]);
+
+  return (
+    <div className="EventsMarkerPage">
+      <h1>Event Markers</h1>
+      {console.log('Markers:', markers)}
+
+      <div ref={mapRef} style={mapContainerStyle} />
+
+      {/* Loading and no events messages */}
+      {isLoading && <p>Loading events...</p>}
+      {!isLoading && markers.length === 0 && <p>No events found.</p>}
+    </div>
+  );
 }
 
 export default EventsMarkerPage;

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import * as eventAPI from '../../services/events-api';
 
 const mapContainerStyle = {
@@ -6,45 +7,31 @@ const mapContainerStyle = {
   height: '500px'
 };
 
-const defaultCenter = { lat: -1.286389, lng: 36.817223 }; // Nairobi
+const defaultCenter = {
+  lat: -1.286389,
+  lng: 36.817223
+};
+
+// Predefined colors for categories
+const CATEGORY_COLORS = {
+  music: '#FF5733',
+  sports: '#33FF57',
+  art: '#3357FF',
+  food: '#F033FF',
+  business: '#33FFF5',
+  default: '#FFC733',
+  conference: '#FF33A1',
+  theatre: '#FF33D4',
+    festival: '#FF8C33',
+    workshop: '#33FF8C',
+    concert: '#FF3333',
+};
 
 function EventsMarkerPage() {
   const [markers, setMarkers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef(null);
-  const googleMapRef = useRef(null);
-  const markersRef = useRef([]);
+  const [selectedMarker, setSelectedMarker] = useState(null);
 
-  // Initialize the map
-  useEffect(() => {
-    const loadGoogleMaps = () => {
-      if (!window.google) {
-        const script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&libraries=places`;
-        script.onload = initializeMap;
-        document.head.appendChild(script);
-      } else {
-        initializeMap();
-      }
-    };
-
-    const initializeMap = () => {
-      const map = new window.google.maps.Map(mapRef.current, {
-        center: defaultCenter,
-        zoom: 2,
-      });
-      googleMapRef.current = map;
-    };
-
-    loadGoogleMaps();
-
-    return () => {
-      // Cleanup markers when component unmounts
-      markersRef.current.forEach(marker => marker.setMap(null));
-    };
-  }, []);
-
-  // Fetch events and add markers
   useEffect(() => {
     async function fetchData() {
       try {
@@ -53,7 +40,7 @@ function EventsMarkerPage() {
           setMarkers(results);
         }
       } catch (error) {
-        console.error('Error fetching events:', error);
+        console.error("Error fetching events:", error);
       } finally {
         setIsLoading(false);
       }
@@ -61,56 +48,59 @@ function EventsMarkerPage() {
     fetchData();
   }, []);
 
-  // Update markers when data changes
-  useEffect(() => {
-    if (!googleMapRef.current || markers.length === 0) return;
+  // Function to get icon configuration based on category
+  const getMarkerIcon = (category) => {
+    console.log("Category:", category);
+    const color = CATEGORY_COLORS[category?.toLowerCase()] || CATEGORY_COLORS.default;
+    console.log("Color:", color);
+    return {
+      path: window.google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+      fillColor: color,
+      fillOpacity: 1,
+      strokeWeight: 0,
+      scale: 10
+    };
+  };
 
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.setMap(null));
-    markersRef.current = [];
-
-    // Create new markers
-    const bounds = new window.google.maps.LatLngBounds();
-    markers.forEach(event => {
-      if (event.lat && event.lng) {
-        const marker = new window.google.maps.Marker({
-          position: { lat: event.lat, lng: event.lng },
-          map: googleMapRef.current,
-          title: event.name || 'Event'
-        });
-
-        // Add info window
-        const infoWindow = new window.google.maps.InfoWindow({
-          content: `
-            <strong>${event.name || 'Event'}</strong><br />
-            ${event.description || ''}
-          `
-        });
-
-        marker.addListener('click', () => {
-          infoWindow.open(googleMapRef.current, marker);
-        });
-
-        markersRef.current.push(marker);
-        bounds.extend(marker.getPosition());
-      }
-    });
-
-    // Fit bounds if we have markers
-    if (markersRef.current.length > 0) {
-      googleMapRef.current.fitBounds(bounds, { padding: 50 });
-    }
-  }, [markers]);
+  // Replace with your actual Google Maps API key
+  const googleMapsApiKey = "YOUR_GOOGLE_MAPS_API_KEY";
 
   return (
     <div className="EventsMarkerPage">
       <h1>Event Markers</h1>
-      {console.log('Markers:', markers)}
+      {isLoading ? (
+        <p>Loading events...</p>
+      ) : (
 
-      <div ref={mapRef} style={mapContainerStyle} />
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            center={defaultCenter}
+            zoom={10}
+          >
+            {markers.map((event, index) => (
+              <Marker
+                key={index}
+                position={{ lat: event.lat, lng: event.lng }}
+                onClick={() => setSelectedMarker(event)}
+                icon={getMarkerIcon(event.eventType)}
+              />
+            ))}
 
-      {/* Loading and no events messages */}
-      {isLoading && <p>Loading events...</p>}
+            {selectedMarker && (
+              <InfoWindow
+                position={{ lat: selectedMarker.lat, lng: selectedMarker.lng }}
+                onCloseClick={() => setSelectedMarker(null)}
+              >
+                <div>
+                  <h3>{selectedMarker.title || 'Event'}</h3>
+                  <p>{selectedMarker.description || ''}</p>
+                  {selectedMarker.category && <p>Category: {selectedMarker.category}</p>}
+                </div>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+
+      )}
       {!isLoading && markers.length === 0 && <p>No events found.</p>}
     </div>
   );

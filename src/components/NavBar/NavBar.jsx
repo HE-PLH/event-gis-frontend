@@ -16,6 +16,7 @@ const NavMenu = (props) => {
     <ul className="navbar-nav ml-auto">
         <li className='nav-item'><NavLink to='/events' className="nav-link">Events</NavLink></li>
         <li className='nav-item'><NavLink to='/eventsnearby' className="nav-link">Events Nearby</NavLink></li>
+        <li className='nav-item'><NavLink to='/eventsmarker' className="nav-link">Event Markers</NavLink></li>
         <li className='nav-item'><NavLink to='/eventsvisual' className="nav-link">Events Visual</NavLink></li>
         <li className="nav-item"><NavLink to='/login' className='nav-link'>Log In</NavLink></li>
         <li className="nav-item"><NavLink to='/signup' className='nav-link'>Sign Up</NavLink></li>

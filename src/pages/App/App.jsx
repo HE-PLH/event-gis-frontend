@@ -13,7 +13,8 @@ import LoginPage from '../LoginPage/LoginPage';
 import userService from '../../utils/userService';
 import EventAttendees from '../EventAttendees/attendees';
 import EventsNearbyPage from "../EventsNearbyPage/EventsNearbyPage";
-import EventsVisualPage from "../EventsVisualPage/EventsVisualPage";
+import EventsMarkerPage from "../EventsVisualPage/EventsMarkerPage";
+import EventsVisualPage from "../EventsMarkerPage/EventsVisualPage";
 
 class App extends Component {
     constructor() {
@@ -59,6 +60,13 @@ class App extends Component {
 
                         <Route exact path='/eventsnearby' render={props =>
                             <EventsNearbyPage
+                                {...props}
+                                user={this.state.user}
+                            />
+                        }/>
+
+                        <Route exact path='/eventsmarker' render={props =>
+                            <EventsMarkerPage
                                 {...props}
                                 user={this.state.user}
                             />

@@ -62,6 +62,30 @@ function EventForm(props) {
                             required
                         />
                     </div>
+                    <div className="form-group">
+                        <label htmlFor="name">Event Type</label>
+                        <select name={"eventType"} id="eventType" className="form-control"
+                            defaultValue={props.event && props.event.eventType}
+                            onChange={props.handleInputChange}
+                            required
+                        >
+                            <option value="">Select Event Type</option>
+                            <option value="Concert">Concert</option>
+                            <option value="Festival">Festival</option>
+                            <option value="Sport">Sport</option>
+                            <option value="Theater">Theater</option>
+                            <option value="Exhibition">Exhibition</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        {/*<input type="text" id="eventType" className="form-control"
+                            name="eventType"
+                            defaultValue={props.event && props.event.name}
+                            onChange={props.handleInputChange}
+                            required
+                        />*/}
+                    </div>
 
                     <div className="form-group">
                         <label htmlFor="startTime">Start Time</label>
